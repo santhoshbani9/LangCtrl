@@ -14,8 +14,20 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@langctrl/*": ["src/*"],
+      "@langctrl/utils/*": ["src/utils/*"],
+      "@langctrl/types/*": ["src/types/*"],
+      "@langctrl/config/*": ["src/config/*"],
+      "@langctrl/modules/*": ["src/modules/*"],
+      "@langctrl/schemas/*": ["src/schemas/*"],
+      "@langctrl/entities/*": ["src/entities/*"],
+      "@langctrl/constants/*": ["src/constants/*"],
+      "@langctrl/factories/*": ["src/factories/*"]
+    }
+  },
+  "exclude": ["node_modules"]
 }
