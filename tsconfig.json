@@ -15,19 +15,18 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
-    "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@langctrl/*": ["src/*"],
-      "@langctrl/utils/*": ["src/utils/*"],
-      "@langctrl/types/*": ["src/types/*"],
-      "@langctrl/config/*": ["src/config/*"],
-      "@langctrl/modules/*": ["src/modules/*"],
-      "@langctrl/schemas/*": ["src/schemas/*"],
-      "@langctrl/entities/*": ["src/entities/*"],
-      "@langctrl/constants/*": ["src/constants/*"],
-      "@langctrl/factories/*": ["src/factories/*"]
+      "@/*": ["src/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"],
+      "@config/*": ["src/config/*"],
+      "@modules/*": ["src/modules/*"],
+      "@schemas/*": ["src/schemas/*"],
+      "@entities/*": ["src/entities/*"],
+      "@constants/*": ["src/constants/*"],
+      "@factories/*": ["src/factories/*"]
     }
   },
+  "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules"]
 }

@@ -1,8 +1,15 @@
-import { LlmService } from './llm.service';
+import { BullModule } from '@nestjs/bullmq';
+import { LLMService } from './llm.service';
+import { QUEUE_NAMES } from '@/constants';
 import { Module } from '@nestjs/common';
 
 @Module({
-  controllers: [],
-  providers: [LlmService],
+  imports: [
+    BullModule.registerQueue({
+      name: QUEUE_NAMES.LLM_QUEUE,
+    }),
+  ],
+  providers: [LLMService],
+  exports: [LLMService],
 })
-export class LlmModule { }
+export class LLMModule {}

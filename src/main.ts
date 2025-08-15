@@ -1,52 +1,35 @@
-import { INestApplication } from '@nestjs/common';
+import 'module-alias/register';
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { logger } from '@langctrl/utils';
+import { gracefulShutdown, Logger } from '@/utils';
+import { ValidationPipe } from '@nestjs/common';
 
-const gracefulShutdown = async (app: INestApplication, signal: string) => {
-  logger.info(`Received ${signal}. Starting graceful shutdown...`);
+const bootstrap = async () => {
+  const loggerInstance = Logger.getInstance();
 
-  try {
-    await app.close();
-
-    logger.info('Graceful shutdown complete.');
-
-    process.exit(0);
-  } catch (error) {
-    logger.error('Error during graceful shutdown:', error);
-
-    process.exit(1);
-  }
-}
-
-async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: {
-      error: (message) => logger.error(message),
-      warn: (message) => logger.warn(message),
-      log: (message) => logger.info(message),
-      debug: (message) => logger.debug(message),
-      fatal: (message) => logger.fatal(message),
-      verbose: (message) => logger.silent(message),
-    }, bufferLogs: true
+    logger: new Logger(),
+    moduleIdGeneratorAlgorithm: 'deep-hash',
+    bufferLogs: true,
   });
 
+  app.useGlobalPipes(new ValidationPipe());
   app.enableShutdownHooks();
-
-  await app.listen(process.env.PORT ?? 3000);
 
   process.on('SIGINT', () => void gracefulShutdown(app, 'SIGINT'));
   process.on('SIGTERM', () => void gracefulShutdown(app, 'SIGTERM'));
-}
 
-void (async () => {
   try {
-    await bootstrap();
-    logger.info(
-      `🚀 Application is running on: http://localhost:${process.env.PORT ?? 3000}`,
+    await app.listen(process.env.PORT ?? 3000);
+
+    loggerInstance.info(
+      { url: await app.getUrl() },
+      `Application is running on:`,
     );
   } catch (error) {
-    logger.error('Error during application bootstrap:', error);
-    process.exit(1);
+    loggerInstance.error(`Error during application bootstrap: ${error}`);
   }
-})();
+};
+
+void bootstrap().catch(console.error);

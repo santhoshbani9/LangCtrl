@@ -1,18 +1,41 @@
-import { ScreenshotterModule } from './modules/screenshotter/screenshotter.module';
-import { TaskManagerModule } from './modules/task-manager/task-manager.module';
-import { ArchiverModule } from './modules/archiver/archiver.module';
-import { ReporterModule } from './modules/reporter/reporter.module';
-import { BrowserModule } from './modules/browser/browser.module';
-import { AgentModule } from './modules/agent/agent.module';
-import { AppController } from './app.controller';
-import { LlmModule } from './modules/llm/llm.module';
-import { DomModule } from './modules/dom/dom.module';
-import { AppService } from './app.service';
+import { TelegramModule, PlaywrightModule } from '@/modules';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ENV_VARS, ENV_VARS_DEFAULTS } from '@/constants';
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [ArchiverModule, BrowserModule, LlmModule, ScreenshotterModule, AgentModule, DomModule, ReporterModule, TaskManagerModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (cfg: ConfigService) => ({
+        connection: {
+          host: cfg.get<string>(
+            ENV_VARS.BULLMQ_HOST,
+            String(ENV_VARS_DEFAULTS[ENV_VARS.BULLMQ_HOST]),
+          ),
+          port: cfg.get<number>(
+            ENV_VARS.BULLMQ_PORT,
+            Number(ENV_VARS_DEFAULTS[ENV_VARS.BULLMQ_PORT]),
+          ),
+        },
+        defaultJobOptions: {
+          timestamp: Date.now(),
+          removeOnComplete: 10,
+          removeOnFail: 50,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+        },
+      }),
+    }),
+    PlaywrightModule,
+    TelegramModule,
+  ],
 })
-export class AppModule { }
+export class AppModule {
+  constructor() {}
+}
